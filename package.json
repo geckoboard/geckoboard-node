@@ -1,0 +1,27 @@
+{
+  "name": "geckoboard-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "JASMINE_CONFIG_PATH=jasmine.json jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/geckoboard/geckoboard-node.git"
+  },
+  "keywords": [
+    "geckoboard",
+    "node",
+    "javascript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/geckoboard/geckoboard-node/issues"
+  },
+  "homepage": "https://github.com/geckoboard/geckoboard-node#readme",
+  "devDependencies": {
+    "jasmine": "^2.4.1"
+  }
+}
