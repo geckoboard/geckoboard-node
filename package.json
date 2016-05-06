@@ -2,8 +2,9 @@
   "name": "geckoboard-node",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
+    "watch-test": "watch 'npm test'",
     "test": "JASMINE_CONFIG_PATH=jasmine.json jasmine"
   },
   "repository": {
@@ -22,6 +23,7 @@
   },
   "homepage": "https://github.com/geckoboard/geckoboard-node#readme",
   "devDependencies": {
-    "jasmine": "^2.4.1"
+    "jasmine": "^2.4.1",
+    "watch": "^0.18.0"
   }
 }
