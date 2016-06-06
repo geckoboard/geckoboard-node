@@ -15,3 +15,7 @@ The latest documentation and user guide can be found on the Geckoboard developer
 ```
 npm run test
 ```
+
+## Development
+
+You can change the host against which requests will be made by setting the `GECKOBOARD_API_HOST` environment variable to the full URL of the instance you wish to use.
