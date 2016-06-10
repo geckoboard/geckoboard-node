@@ -1,5 +1,7 @@
 # geckoboard-node
 
+This module requires Node v4 or greater.
+
 ## Installation
 
 ```
