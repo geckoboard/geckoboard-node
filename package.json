@@ -21,7 +21,7 @@
   "bugs": {
     "url": "https://github.com/geckoboard/geckoboard-node/issues"
   },
-  "homepage": "https://github.com/geckoboard/geckoboard-node#readme",
+  "homepage": "https://developer-beta.geckoboard.com/js",
   "dependencies": {
     "request": "^2.72.0"
   },
