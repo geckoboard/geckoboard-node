@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "watch-test": "watch 'npm test'",
-    "test": "JASMINE_CONFIG_PATH=jasmine.json jasmine"
+    "test": "JASMINE_CONFIG_PATH=jasmine.json jasmine",
+    "lint": "./node_modules/eslint/bin/eslint.js lib"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "request": "^2.72.0"
   },
   "devDependencies": {
+    "eslint": "^3.1.1",
     "jasmine": "^2.4.1",
     "nock": "^8.0.0",
     "watch": "^0.18.0"
