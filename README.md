@@ -18,7 +18,7 @@ npm install geckoboard
 
 ## Use
 
-The latest documentation and user guide can be found on the Geckoboard developer docs (https://developer-beta.geckoboard.com/js)
+The latest documentation and user guide can be found on the Geckoboard developer docs (https://developer.geckoboard.com/)
 
 ## Running the tests
 
