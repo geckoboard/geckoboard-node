@@ -18,13 +18,13 @@ jobs:
     executor: node
     steps:
       - checkout
-      - run: npm install
+      - run: npm clean-install
       - run: npm test
   lint:
     executor: node
     steps:
       - checkout
-      - run: npm install
+      - run: npm clean-install
       - run: npm run lint 
 
 workflows:
