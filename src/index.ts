@@ -48,23 +48,13 @@ type KeysMatching<T, V> = { [K in keyof T]-?: T[K] extends V ? K : never }[keyof
 type Schema<T extends Fields> = {
     id: string;
     fields: T;
-    uniqueBy: Array<KeysMatching<T, StringField | DateField>>;
+    uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
 }
 
-type FieldType<T> = T extends DateField
+type FieldType<T> = T extends DateField | DateTimeField | StringField
     ? string
-    : T extends DateTimeField
-    ? string
-    : T extends DurationField
+    : T extends DurationField |  MoneyField | NumberField | PercentageField
     ? number
-    : T extends MoneyField
-    ? number
-    : T extends NumberField
-    ? number
-    : T extends PercentageField
-    ? number
-    : T extends StringField
-    ? string
     : never;
 
 type IsOptional<K extends keyof F, F extends Fields> = F[K] extends OptionalField ? K : never;
@@ -80,7 +70,7 @@ class Dataset<T extends Fields> {
     // can we get these directly from the schema?
     id: string;
     fields: T;
-    uniqueBy: Array<KeysMatching<T, StringField | DateField>>;
+    uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
 
     constructor(schema: Schema<T>) {
         this.id = schema.id;
@@ -117,7 +107,7 @@ class Geckoboard {
         this.version = version;
     }
 
-    defineDataset<T extends Fields>(schema: { id: string, fields: T, uniqueBy: Schema<T>['uniqueBy'] }): Dataset<T> {
+    defineDataset<T extends Fields>(schema: Schema<T>): Dataset<T> {
         return new Dataset(schema);
     }
 
