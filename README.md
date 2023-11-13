@@ -54,7 +54,12 @@ console.log(schema)
 #### Update a dataset
 ```
 
-await dataset.post([{ count: 1, day: '2023-10-10' }])
+await dataset.post([
+  { count: 1, day: '2023-10-10' },
+  { count: 2, day: '2023-10-11' },
+  { count: 3, day: '2023-10-12' },
+  { count: 4, day: '2023-10-13' },
+]);
 
 // provide an optional 'delete_by' value, to indicate 
 // which fields should be used to indicate which records
@@ -85,12 +90,8 @@ const API_KEY = 'YOUR_API_KEY';
 
 const gb = new Geckoboard(API_KEY);
 
-const run = async (): Promise<void> => {
-    console.log(await gb.ping());
-}
-
 try {
-  run()
+  await gb.ping()
   console.log("success")
 } catch (err) {
   console.log(err); 
