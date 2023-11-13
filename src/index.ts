@@ -263,7 +263,6 @@ type DatasetDataItem<F extends Fields> = {
 };
 
 class Dataset<T extends Fields> {
-  // can we get these directly from the schema?
   id: string;
   fields: T;
   uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
