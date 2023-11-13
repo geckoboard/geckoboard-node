@@ -1,0 +1,34 @@
+version: 2.1
+
+parameters:
+  node_version:
+    type: string
+    default: '18.8'
+
+executors:
+  node:
+    docker:
+      - image: cimg/node:<< pipeline.parameters.node_version >>
+    # Everything is faster in RAM!
+    # https://support.circleci.com/hc/en-us/articles/360054908812-Speed-up-steps-using-a-RAM-disk
+    working_directory: /mnt/ramdisk/project
+
+jobs:
+  test:
+    executor: node
+    steps:
+      - checkout
+      - run: npm clean-install
+      - run: npm test
+  lint:
+    executor: node
+    steps:
+      - checkout
+      - run: npm clean-install
+      - run: npm run lint 
+
+workflows:
+  lint-and-test:
+    jobs:
+      - lint
+      - test
