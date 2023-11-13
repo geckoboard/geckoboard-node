@@ -20,27 +20,6 @@ npm install geckoboard
 
 The latest documentation and user guide can be found on the Geckoboard developer docs (https://developer.geckoboard.com/) 
 
-### Ping to authenticate
-
-```
-import Geckoboard from 'geckoboard';
-
-const API_KEY = 'YOUR_API_KEY';
-
-const gb = new Geckoboard(API_KEY);
-
-const run = async (): Promise<void> => {
-    console.log(await gb.ping());
-}
-
-try {
-  run()
-  console.log("success")
-} catch (err) {
-  console.log(err); 
-}
-```
-
 
 ### API requests
 
@@ -97,6 +76,26 @@ await dataset.delete()
 
 ```
 
+### Ping to test connection
+
+```
+import Geckoboard from 'geckoboard';
+
+const API_KEY = 'YOUR_API_KEY';
+
+const gb = new Geckoboard(API_KEY);
+
+const run = async (): Promise<void> => {
+    console.log(await gb.ping());
+}
+
+try {
+  run()
+  console.log("success")
+} catch (err) {
+  console.log(err); 
+}
+```
 ## Running the tests
 
 ```

@@ -18,11 +18,11 @@
     "javascript"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "TBC",
   "bugs": {
     "url": "https://github.com/geckoboard/geckoboard-node/issues"
   },
-  "homepage": "https://developer-beta.geckoboard.com/js",
+  "homepage": "https://developer.geckoboard.com/",
   "devDependencies": {
     "@types/jest": "^29.5.8",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
