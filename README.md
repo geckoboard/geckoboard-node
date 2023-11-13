@@ -80,13 +80,13 @@ await dataset.post([{ count: 1, day: '2023-10-10' }])
 // provide an optional 'delete_by' value, to indicate 
 // which fields should be used to indicate which records
 // should be deleted
-await dataset.post([{ count: 3, day: '2023-10-11' }], 'day')
+await dataset.append([{ count: 3, day: '2023-10-11' }], 'day')
 ```
 
 #### Replace all data in a dataset
 ```
 // all current data will be replaced
-await dataset.put([{ count: 2, day: '2023-10-10' }])
+await dataset.replace([{ count: 2, day: '2023-10-10' }])
 
 ```
 #### Delete a dataset

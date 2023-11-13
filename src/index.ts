@@ -83,12 +83,12 @@ class Dataset<T extends Fields> {
         return Promise.resolve({ id, fields, uniqueBy });
     }
 
-    post(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
+    append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
         console.log({ items, deleteBy })
         return Promise.resolve();
     }
 
-    put(items: DatasetDataItem<T>[]): Promise<void> {
+    replace(items: DatasetDataItem<T>[]): Promise<void> {
         console.log({ items })
         return Promise.resolve();
     }
