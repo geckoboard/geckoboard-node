@@ -5,10 +5,6 @@ parameters:
     type: string
     default: '18.8'
 
-orbs:
-  aws-cli: circleci/aws-cli@3.1.4
-  deployment-tooling: geckoboard/deployment-tooling@1
-
 executors:
   node:
     docker:
@@ -22,13 +18,13 @@ jobs:
     executor: node
     steps:
       - checkout
-      - deployment-tooling/npm-cached-install
+      - run: npm install
       - run: npm test
   lint:
     executor: node
     steps:
       - checkout
-      - deployment-tooling/npm-cached-install
+      - run: npm install
       - run: npm run lint 
 
 workflows:
