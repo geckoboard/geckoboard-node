@@ -18,7 +18,84 @@ npm install geckoboard
 
 ## Use
 
-The latest documentation and user guide can be found on the Geckoboard developer docs (https://developer.geckoboard.com/)
+The latest documentation and user guide can be found on the Geckoboard developer docs (https://developer.geckoboard.com/) 
+
+### Ping to authenticate
+
+```
+import Geckoboard from 'geckoboard';
+
+const API_KEY = 'YOUR_API_KEY';
+
+const gb = new Geckoboard(API_KEY);
+
+const run = async (): Promise<void> => {
+    console.log(await gb.ping());
+}
+
+try {
+  run()
+  console.log("success")
+} catch (err) {
+  console.log(err); 
+}
+```
+
+
+### API requests
+
+#### Find or create a new dataset
+
+```
+import Geckoboard from 'geckoboard';
+
+const API_KEY = 'YOUR_API_KEY';
+
+const gb = new Geckoboard(API_KEY);
+
+const dataset = gb.defineDataset({
+    id: 'my.dataset',
+    fields: {
+        count: {
+            type: 'number',
+            name: 'Count'
+        },
+        day: {
+            type: 'date',
+            name: 'Day'
+        },
+    },
+    uniqueBy: ['day']
+})
+
+const schema = await dataset.create();
+console.log(schema)
+```
+
+#### Update a dataset
+```
+
+await dataset.post([{ count: 1, day: '2023-10-10' }])
+
+// provide an optional 'delete_by' value, to indicate 
+// which fields should be used to indicate which records
+// should be deleted
+await dataset.post([{ count: 3, day: '2023-10-11' }], 'day')
+```
+
+#### Replace all data in a dataset
+```
+// all current data will be replaced
+await dataset.put([{ count: 2, day: '2023-10-10' }])
+
+```
+#### Delete a dataset
+```
+
+// remove the dataset completely
+await dataset.delete()
+
+```
 
 ## Running the tests
 
