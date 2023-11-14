@@ -1,5 +1,5 @@
 import { version } from '../package.json';
-import { fetch } from 'undici';
+import { fetch, Response } from 'undici';
 
 const USER_AGENT = `Geckoboard Node Client ${version}`;
 
@@ -8,6 +8,8 @@ type ErrorResponse = {
     message?: string;
   };
 };
+
+type HTTP_METHOD = 'GET' | 'PUT' | 'POST' | 'DELETE';
 
 type MandatoryField = {
   name: string;
@@ -244,10 +246,18 @@ type KeysMatching<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
+type uniqueBy<T> = Array<
+  KeysMatching<T, StringField | DateField | DateTimeField>
+>;
+
 type Schema<T extends Fields> = {
   id: string;
   fields: T;
-  uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
+  uniqueBy: uniqueBy<T>;
+};
+
+type SchemaResponse<T extends Fields> = Pick<Schema<T>, 'id' | 'fields'> & {
+  unique_by: uniqueBy<T>;
 };
 
 type FieldType<T> = T extends DateField | DateTimeField | StringField
@@ -276,15 +286,28 @@ class Dataset<T extends Fields> {
   fields: T;
   uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
 
-  constructor(schema: Schema<T>) {
+  gb: Geckoboard;
+
+  constructor(schema: Schema<T>, gb: Geckoboard) {
     this.id = schema.id;
     this.fields = schema.fields;
     this.uniqueBy = schema.uniqueBy;
+
+    this.gb = gb;
   }
 
-  create(): Promise<Schema<T>> {
+  async create(): Promise<Schema<T>> {
     const { id, fields, uniqueBy } = this;
-    return Promise.resolve({ id, fields, uniqueBy });
+    const res = await this.gb.request('PUT', `/datasets/${id}`, {
+      fields,
+      unique_by: uniqueBy,
+    });
+    const json = (await res.json()) as SchemaResponse<T>;
+    return {
+      id: json.id,
+      fields: json.fields,
+      uniqueBy: json.unique_by,
+    } as Schema<T>;
   }
 
   append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
@@ -311,13 +334,15 @@ class Geckoboard {
     this.version = version;
   }
 
-  defineDataset<T extends Fields>(schema: Schema<T>): Dataset<T> {
-    return new Dataset(schema);
-  }
-
-  async ping(): Promise<void> {
+  async request(
+    method: HTTP_METHOD,
+    path: string,
+    body?: object,
+  ): Promise<Response> {
     const auth = btoa(`${this.apiKey}:`);
-    const res = await fetch('https://api.geckoboard.com', {
+    const res = await fetch(`https://api.geckoboard.com${path}`, {
+      body: JSON.stringify(body),
+      method: method,
       headers: {
         Authorization: `Basic ${auth}`,
         'User-Agent': USER_AGENT,
@@ -329,6 +354,15 @@ class Geckoboard {
         json.error?.message || 'Something went wrong with the request';
       throw new Error(message);
     }
+    return res;
+  }
+
+  defineDataset<T extends Fields>(schema: Schema<T>): Dataset<T> {
+    return new Dataset(schema, this);
+  }
+
+  async ping(): Promise<void> {
+    await this.request('GET', '/');
   }
 }
 
