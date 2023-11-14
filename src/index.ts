@@ -314,10 +314,10 @@ class Geckoboard {
   }
 
   async ping(): Promise<void> {
-    const base64UserString = btoa(`${this.apiKey}:`);
+    const auth = btoa(`${this.apiKey}:`);
     const res = await fetch('https://api.geckoboard.com', {
       headers: {
-        Authorization: `Basic ${base64UserString}`,
+        Authorization: `Basic ${auth}`,
       },
     });
     if (res.status !== 200) {
