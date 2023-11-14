@@ -1,4 +1,13 @@
 import { version } from '../package.json';
+import { fetch } from 'undici';
+
+const USER_AGENT = `Geckoboard Node Client ${version}`;
+
+type ErrorResponse = {
+  error?: {
+    message?: string;
+  };
+};
 
 type MandatoryField = {
   name: string;
@@ -306,8 +315,20 @@ class Geckoboard {
     return new Dataset(schema);
   }
 
-  ping(): Promise<void> {
-    return Promise.resolve();
+  async ping(): Promise<void> {
+    const auth = btoa(`${this.apiKey}:`);
+    const res = await fetch('https://api.geckoboard.com', {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        'User-Agent': USER_AGENT,
+      },
+    });
+    if (res.status !== 200) {
+      const json = (await res.json()) as ErrorResponse;
+      const message =
+        json.error?.message || 'Something went wrong with the request';
+      throw new Error(message);
+    }
   }
 }
 
