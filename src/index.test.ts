@@ -15,7 +15,10 @@ describe('Geckoboard', () => {
     mockPool
       .intercept({
         path: '/',
-        headers: { Authorization: `Basic ${btoa('API_KEY:')}` },
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+        },
       })
       .reply(200, '{}');
 

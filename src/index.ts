@@ -1,6 +1,8 @@
 import { version } from '../package.json';
 import { fetch } from 'undici';
 
+const USER_AGENT = `Geckoboard Node Client ${version}`;
+
 type ErrorResponse = {
   error?: {
     message?: string;
@@ -318,6 +320,7 @@ class Geckoboard {
     const res = await fetch('https://api.geckoboard.com', {
       headers: {
         Authorization: `Basic ${auth}`,
+        'User-Agent': USER_AGENT,
       },
     });
     if (res.status !== 200) {
