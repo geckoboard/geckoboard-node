@@ -1,6 +1,12 @@
 import { version } from '../package.json';
 import { fetch } from 'undici';
 
+type ErrorResponse = {
+  error?: {
+    message?: string;
+  };
+};
+
 type MandatoryField = {
   name: string;
   optional?: false;
@@ -315,7 +321,10 @@ class Geckoboard {
       },
     });
     if (res.status !== 200) {
-      throw new Error('Ping unsuccessful');
+      const json = (await res.json()) as ErrorResponse;
+      const message =
+        json.error?.message || 'Something went wrong with the request';
+      throw new Error(message);
     }
   }
 }

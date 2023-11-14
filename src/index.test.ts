@@ -44,6 +44,25 @@ describe('Geckoboard', () => {
       );
 
     const gb = new Geckoboard('BAD_API_KEY');
-    expect(async () => await gb.ping()).rejects.toThrow('Ping unsuccessful');
+    expect(async () => await gb.ping()).rejects.toThrow(
+      new Error('Your API key is invalid'),
+    );
+  });
+
+  it('will error with default message when error is upexpected', async () => {
+    const mockAgent = new MockAgent();
+    setGlobalDispatcher(mockAgent);
+
+    const mockPool = mockAgent.get('https://api.geckoboard.com');
+    mockPool
+      .intercept({
+        path: '/',
+      })
+      .reply(500, {});
+
+    const gb = new Geckoboard('BAD_API_KEY');
+    expect(async () => await gb.ping()).rejects.toThrow(
+      new Error('Something went wrong with the request'),
+    );
   });
 });
