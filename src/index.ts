@@ -340,13 +340,17 @@ class Geckoboard {
     body?: object,
   ): Promise<Response> {
     const auth = btoa(`${this.apiKey}:`);
+    const headers = new Headers({
+      Authorization: `Basic ${auth}`,
+      'User-Agent': USER_AGENT,
+    });
+    if (method === 'POST' || method === 'PUT') {
+      headers.set('Content-Type', 'application/json');
+    }
     const res = await fetch(`https://api.geckoboard.com${path}`, {
       body: JSON.stringify(body),
       method: method,
-      headers: {
-        Authorization: `Basic ${auth}`,
-        'User-Agent': USER_AGENT,
-      },
+      headers,
     });
     if (res.status !== 200) {
       const json = (await res.json()) as ErrorResponse;

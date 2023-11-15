@@ -81,6 +81,7 @@ describe('Geckoboard', () => {
         headers: {
           Authorization: `Basic ${btoa('API_KEY:')}`,
           'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'Content-type': 'application/json',
         },
         body: JSON.stringify({
           fields: {
@@ -164,6 +165,7 @@ describe('Geckoboard', () => {
         headers: {
           Authorization: `Basic ${btoa('API_KEY:')}`,
           'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'Content-type': 'application/json',
         },
         body: JSON.stringify({
           fields: {
@@ -192,5 +194,6 @@ describe('Geckoboard', () => {
     expect(async () => await dataset.create()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
+    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 });
