@@ -347,7 +347,7 @@ class Geckoboard {
     if (method === 'POST' || method === 'PUT') {
       headers.set('Content-Type', 'application/json');
     }
-    const res = await fetch(`https://api.geckoboard.com${path}`, {
+    const res = await fetch(new URL(path, 'https://api.geckoboard.com'), {
       body: JSON.stringify(body),
       method: method,
       headers,
