@@ -25,33 +25,31 @@ describe('Geckoboard', () => {
   });
 
   it('can ping the api server', async () => {
-    mockPool
-      .intercept({
-        path: '/',
-        headers: {
-          Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
-        },
-      })
-      .reply(200, '{}');
+    const serverSpy = jest.fn().mockReturnValue({});
+    mockPool.intercept({ path: '/' }).reply(200, serverSpy);
 
     const gb = new Geckoboard('API_KEY');
     await gb.ping();
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: '/',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+        }),
+      }),
+    );
   });
 
   it('will error if ping is not authorized', async () => {
-    mockPool
-      .intercept({
-        path: '/',
-      })
-      .reply(
-        401,
-        JSON.stringify({
-          error: {
-            message: 'Your API key is invalid',
-          },
-        }),
-      );
+    mockPool.intercept({ path: '/' }).reply(
+      401,
+      JSON.stringify({
+        error: {
+          message: 'Your API key is invalid',
+        },
+      }),
+    );
 
     const gb = new Geckoboard('BAD_API_KEY');
     await expect(gb.ping()).rejects.toThrow(
@@ -60,11 +58,7 @@ describe('Geckoboard', () => {
   });
 
   it('will error with default message when error is upexpected', async () => {
-    mockPool
-      .intercept({
-        path: '/',
-      })
-      .reply(500, {});
+    mockPool.intercept({ path: '/' }).reply(500, {});
 
     const gb = new Geckoboard('BAD_API_KEY');
     await expect(gb.ping()).rejects.toThrow(
@@ -73,48 +67,26 @@ describe('Geckoboard', () => {
   });
 
   it('can create a dataset', async () => {
-    mockPool
-      .intercept({
-        method: 'PUT',
-        path: '/datasets/steps.by.day',
-        headers: {
-          Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
-          'Content-type': 'application/json',
+    const serverSpy = jest.fn().mockReturnValue(
+      JSON.stringify({
+        id: 'steps.by.day',
+        fields: {
+          steps: {
+            type: 'number',
+            name: 'Steps',
+            optional: false,
+          },
+          timestamp: {
+            type: 'datetime',
+            name: 'Date',
+          },
         },
-        body: JSON.stringify({
-          fields: {
-            steps: {
-              type: 'number',
-              name: 'Steps',
-              optional: false,
-            },
-            timestamp: {
-              type: 'datetime',
-              name: 'Date',
-            },
-          },
-          unique_by: ['timestamp'],
-        }),
-      })
-      .reply(
-        200,
-        JSON.stringify({
-          id: 'steps.by.day',
-          fields: {
-            steps: {
-              type: 'number',
-              name: 'Steps',
-              optional: false,
-            },
-            timestamp: {
-              type: 'datetime',
-              name: 'Date',
-            },
-          },
-          unique_by: ['timestamp'],
-        }),
-      );
+        unique_by: ['timestamp'],
+      }),
+    );
+    mockPool
+      .intercept({ method: 'PUT', path: '/datasets/steps.by.day' })
+      .reply(200, serverSpy);
 
     const gb = new Geckoboard('API_KEY');
     const dataset = gb.defineDataset({
@@ -133,6 +105,31 @@ describe('Geckoboard', () => {
       uniqueBy: ['timestamp'],
     });
     await dataset.create();
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'PUT',
+        path: '/datasets/steps.by.day',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'content-type': 'application/json',
+        }),
+        body: JSON.stringify({
+          fields: {
+            steps: {
+              type: 'number',
+              name: 'Steps',
+              optional: false,
+            },
+            timestamp: {
+              type: 'datetime',
+              name: 'Date',
+            },
+          },
+          unique_by: ['timestamp'],
+        }),
+      }),
+    );
   });
 
   it('will error if there is an issue creating a dataset', async () => {
@@ -175,15 +172,37 @@ describe('Geckoboard', () => {
   });
 
   it('can append data to a dataset', async () => {
+    const serverSpy = jest.fn().mockReturnValue('{}');
     mockPool
       .intercept({
         method: 'POST',
         path: '/datasets/steps.by.day/data',
-        headers: {
-          Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
-          'Content-type': 'application/json',
-        },
+      })
+      .reply(200, serverSpy);
+    const dataset = prepareDataset();
+    await dataset.append([
+      {
+        timestamp: '2018-01-01T12:00:00Z',
+        steps: 819,
+      },
+      {
+        timestamp: '2018-01-02T12:00:00Z',
+        steps: 409,
+      },
+      {
+        timestamp: '2018-01-03T12:00:00Z',
+        steps: 164,
+      },
+    ]);
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'POST',
+        path: '/datasets/steps.by.day/data',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'content-type': 'application/json',
+        }),
         body: JSON.stringify({
           data: [
             {
@@ -200,23 +219,8 @@ describe('Geckoboard', () => {
             },
           ],
         }),
-      })
-      .reply(200, '{}');
-    const dataset = prepareDataset();
-    await dataset.append([
-      {
-        timestamp: '2018-01-01T12:00:00Z',
-        steps: 819,
-      },
-      {
-        timestamp: '2018-01-02T12:00:00Z',
-        steps: 409,
-      },
-      {
-        timestamp: '2018-01-03T12:00:00Z',
-        steps: 164,
-      },
-    ]);
+      }),
+    );
   });
 
   it('will error if there is an issue appending to a dataset', async () => {
@@ -251,15 +255,37 @@ describe('Geckoboard', () => {
   });
 
   it('can replace data in a dataset', async () => {
+    const serverSpy = jest.fn().mockReturnValue('{}');
     mockPool
       .intercept({
         method: 'PUT',
         path: '/datasets/steps.by.day/data',
-        headers: {
-          Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
-          'Content-type': 'application/json',
-        },
+      })
+      .reply(200, serverSpy);
+    const dataset = prepareDataset();
+    await dataset.replace([
+      {
+        timestamp: '2018-01-01T12:00:00Z',
+        steps: 819,
+      },
+      {
+        timestamp: '2018-01-02T12:00:00Z',
+        steps: 409,
+      },
+      {
+        timestamp: '2018-01-03T12:00:00Z',
+        steps: 164,
+      },
+    ]);
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'PUT',
+        path: '/datasets/steps.by.day/data',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'content-type': 'application/json',
+        }),
         body: JSON.stringify({
           data: [
             {
@@ -276,23 +302,8 @@ describe('Geckoboard', () => {
             },
           ],
         }),
-      })
-      .reply(200, '{}');
-    const dataset = prepareDataset();
-    await dataset.replace([
-      {
-        timestamp: '2018-01-01T12:00:00Z',
-        steps: 819,
-      },
-      {
-        timestamp: '2018-01-02T12:00:00Z',
-        steps: 409,
-      },
-      {
-        timestamp: '2018-01-03T12:00:00Z',
-        steps: 164,
-      },
-    ]);
+      }),
+    );
   });
 
   it('will error if there is an issue replacing a dataset', async () => {
@@ -327,18 +338,25 @@ describe('Geckoboard', () => {
   });
 
   it('can delete a dataset', async () => {
+    const serverSpy = jest.fn().mockReturnValue('{}');
     mockPool
       .intercept({
         method: 'DELETE',
         path: '/datasets/steps.by.day',
-        headers: {
-          Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
-        },
       })
-      .reply(200, '{}');
+      .reply(200, serverSpy);
     const dataset = prepareDataset();
     await dataset.delete();
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'DELETE',
+        path: '/datasets/steps.by.day',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+        }),
+      }),
+    );
   });
 
   it('will error if there is an issue deleting a dataset', async () => {
