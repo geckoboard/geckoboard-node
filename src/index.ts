@@ -311,8 +311,9 @@ class Dataset<T extends Fields> {
     });
   }
 
-  delete(): Promise<void> {
-    return Promise.resolve();
+  async delete(): Promise<void> {
+    const { id } = this;
+    await this.gb.request('DELETE', `/datasets/${id}`);
   }
 }
 

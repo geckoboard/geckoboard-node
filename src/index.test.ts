@@ -334,4 +334,38 @@ describe('Geckoboard', () => {
         ]),
     ).rejects.toThrow(new Error('Something went wrong with the request'));
   });
+
+  it('can delete a dataset', async () => {
+    mockPool
+      .intercept({
+        method: 'DELETE',
+        path: '/datasets/steps.by.day',
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+        },
+      })
+      .reply(200, '{}');
+    const dataset = prepareDatasetForCreation(mockPool);
+    await dataset.create();
+    await dataset.delete();
+  });
+
+  it('will error if there is an issue deleting a dataset', async () => {
+    mockPool
+      .intercept({
+        method: 'DELETE',
+        path: '/datasets/steps.by.day',
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+        },
+      })
+      .reply(500, '{}');
+    const dataset = prepareDatasetForCreation(mockPool);
+    await dataset.create();
+    expect(async () => await dataset.delete()).rejects.toThrow(
+      new Error('Something went wrong with the request'),
+    );
+  });
 });
