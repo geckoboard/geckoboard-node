@@ -223,6 +223,64 @@ describe('Geckoboard', () => {
     );
   });
 
+  it('can append data to a dataset using the Date object', async () => {
+    const serverSpy = jest.fn().mockReturnValue('{}');
+    mockPool
+      .intercept({
+        method: 'POST',
+        path: '/datasets/steps.by.day/data',
+      })
+      .reply(200, serverSpy);
+    const dataset = prepareDataset();
+    await dataset.append([
+      {
+        timestamp: new Date('2018-01-01T12:00:00Z'),
+        day: new Date('2018-01-01'),
+        steps: 819,
+      },
+      {
+        timestamp: new Date('2018-01-02T12:00:00Z'),
+        day: new Date('2018-01-02'),
+        steps: 409,
+      },
+      {
+        timestamp: new Date('2018-01-03T12:00:00Z'),
+        day: new Date('2018-01-03'),
+        steps: 164,
+      },
+    ]);
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'POST',
+        path: '/datasets/steps.by.day/data',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'content-type': 'application/json',
+        }),
+        body: JSON.stringify({
+          data: [
+            {
+              timestamp: '2018-01-01T12:00:00.000Z',
+              day: '2018-01-01',
+              steps: 819,
+            },
+            {
+              timestamp: '2018-01-02T12:00:00.000Z',
+              day: '2018-01-02',
+              steps: 409,
+            },
+            {
+              timestamp: '2018-01-03T12:00:00.000Z',
+              day: '2018-01-03',
+              steps: 164,
+            },
+          ],
+        }),
+      }),
+    );
+  });
+
   it('will error if there is an issue appending to a dataset', async () => {
     mockPool
       .intercept({
@@ -298,6 +356,64 @@ describe('Geckoboard', () => {
             },
             {
               timestamp: '2018-01-03T12:00:00Z',
+              steps: 164,
+            },
+          ],
+        }),
+      }),
+    );
+  });
+
+  it('can replace data for a dataset using the Date object', async () => {
+    const serverSpy = jest.fn().mockReturnValue('{}');
+    mockPool
+      .intercept({
+        method: 'PUT',
+        path: '/datasets/steps.by.day/data',
+      })
+      .reply(200, serverSpy);
+    const dataset = prepareDataset();
+    await dataset.replace([
+      {
+        timestamp: new Date('2018-01-01T12:00:00Z'),
+        day: new Date('2018-01-01'),
+        steps: 819,
+      },
+      {
+        timestamp: new Date('2018-01-02T12:00:00Z'),
+        day: new Date('2018-01-02'),
+        steps: 409,
+      },
+      {
+        timestamp: new Date('2018-01-03T12:00:00Z'),
+        day: new Date('2018-01-03'),
+        steps: 164,
+      },
+    ]);
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'PUT',
+        path: '/datasets/steps.by.day/data',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'content-type': 'application/json',
+        }),
+        body: JSON.stringify({
+          data: [
+            {
+              timestamp: '2018-01-01T12:00:00.000Z',
+              day: '2018-01-01',
+              steps: 819,
+            },
+            {
+              timestamp: '2018-01-02T12:00:00.000Z',
+              day: '2018-01-02',
+              steps: 409,
+            },
+            {
+              timestamp: '2018-01-03T12:00:00.000Z',
+              day: '2018-01-03',
               steps: 164,
             },
           ],
@@ -390,6 +506,11 @@ const prepareDataset = () => {
       timestamp: {
         type: 'datetime',
         name: 'Date',
+      },
+      day: {
+        type: 'date',
+        name: 'Day',
+        optional: true,
       },
     },
     uniqueBy: ['timestamp'],

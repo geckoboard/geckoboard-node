@@ -252,11 +252,13 @@ type Schema<T extends Fields> = {
   uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
 };
 
-type FieldType<T> = T extends DateField | DateTimeField | StringField
-  ? string
-  : T extends DurationField | MoneyField | NumberField | PercentageField
-    ? number
-    : never;
+type FieldType<T> = T extends DateField | DateTimeField
+  ? string | Date
+  : T extends StringField
+    ? string
+    : T extends DurationField | MoneyField | NumberField | PercentageField
+      ? number
+      : never;
 
 type IsOptional<
   K extends keyof F,
@@ -273,6 +275,14 @@ type DatasetDataItem<F extends Fields> = {
   [K in keyof F as IsOptional<K, F>]?: FieldType<F[K]>;
 };
 
+const toDateString = (date: Date): string => {
+  const YYYY = date.getFullYear();
+  const month = (date.getMonth() + 1).toString();
+  const MM = month.length < 2 ? '0' + month : month;
+  const day = date.getDay().toString();
+  const DD = day.length < 2 ? '0' + day : day;
+  return `${YYYY}-${MM}-${DD}`;
+};
 class Dataset<T extends Fields> {
   id: string;
   fields: T;
@@ -296,18 +306,57 @@ class Dataset<T extends Fields> {
     });
   }
 
+  replaceDateObjects(items: DatasetDataItem<T>[]): DatasetDataItem<T>[] {
+    const dateFields: Array<keyof T> = [];
+    const dateTimeFields: Array<keyof T> = [];
+
+    const keys = Object.keys(this.fields);
+    keys.forEach((fieldName) => {
+      const field = this.fields[fieldName];
+      if (field.type === 'date') {
+        dateFields.push(fieldName);
+      }
+      if (field.type === 'datetime') {
+        dateTimeFields.push(fieldName);
+      }
+    });
+    return items.map((item) => {
+      dateFields.forEach((fieldName) => {
+        const fieldValue = item[fieldName as keyof DatasetDataItem<T>];
+        if (fieldValue instanceof Date) {
+          item = {
+            ...item,
+            [fieldName]: toDateString(fieldValue as Date),
+          };
+        }
+      });
+      dateTimeFields.forEach((fieldName) => {
+        const fieldValue = item[fieldName as keyof DatasetDataItem<T>];
+        if (fieldValue instanceof Date) {
+          item = {
+            ...item,
+            [fieldName]: (fieldValue as Date).toISOString(),
+          };
+        }
+      });
+
+      return item;
+    });
+  }
   async append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
     const { id } = this;
+    const data = this.replaceDateObjects(items);
     await this.gb.request('POST', `/datasets/${id}/data`, {
-      data: items,
+      data,
       deleteBy,
     });
   }
 
   async replace(items: DatasetDataItem<T>[]): Promise<void> {
     const { id } = this;
+    const data = this.replaceDateObjects(items);
     await this.gb.request('PUT', `/datasets/${id}/data`, {
-      data: items,
+      data,
     });
   }
 
