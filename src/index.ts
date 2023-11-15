@@ -304,9 +304,11 @@ class Dataset<T extends Fields> {
     });
   }
 
-  replace(items: DatasetDataItem<T>[]): Promise<void> {
-    console.log({ items });
-    return Promise.resolve();
+  async replace(items: DatasetDataItem<T>[]): Promise<void> {
+    const { id } = this;
+    await this.gb.request('PUT', `/datasets/${id}/data`, {
+      data: items,
+    });
   }
 
   delete(): Promise<void> {

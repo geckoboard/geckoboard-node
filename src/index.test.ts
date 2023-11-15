@@ -255,4 +255,83 @@ describe('Geckoboard', () => {
         ]),
     ).rejects.toThrow(new Error('Something went wrong with the request'));
   });
+
+  it('can replace data in a dataset', async () => {
+    mockPool
+      .intercept({
+        method: 'PUT',
+        path: '/datasets/steps.by.day/data',
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: [
+            {
+              timestamp: '2018-01-01T12:00:00Z',
+              steps: 819,
+            },
+            {
+              timestamp: '2018-01-02T12:00:00Z',
+              steps: 409,
+            },
+            {
+              timestamp: '2018-01-03T12:00:00Z',
+              steps: 164,
+            },
+          ],
+        }),
+      })
+      .reply(200, '{}');
+    const dataset = prepareDatasetForCreation(mockPool);
+    await dataset.create();
+    dataset.replace([
+      {
+        timestamp: '2018-01-01T12:00:00Z',
+        steps: 819,
+      },
+      {
+        timestamp: '2018-01-02T12:00:00Z',
+        steps: 409,
+      },
+      {
+        timestamp: '2018-01-03T12:00:00Z',
+        steps: 164,
+      },
+    ]);
+  });
+
+  it('will error if there is an issue replacing a dataset', async () => {
+    mockPool
+      .intercept({
+        method: 'PUT',
+        path: '/datasets/steps.by.day/data',
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: [
+            {
+              timestamp: '2018-01-01T12:00:00Z',
+              steps: 819,
+            },
+          ],
+        }),
+      })
+      .reply(500, '{}');
+    const dataset = prepareDatasetForCreation(mockPool);
+    await dataset.create();
+    expect(
+      async () =>
+        await dataset.replace([
+          {
+            timestamp: '2018-01-01T12:00:00Z',
+            steps: 819,
+          },
+        ]),
+    ).rejects.toThrow(new Error('Something went wrong with the request'));
+  });
 });
