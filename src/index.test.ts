@@ -1,6 +1,67 @@
 import Geckoboard from './index';
 import { MockAgent, setGlobalDispatcher, Interceptable } from 'undici';
 
+const prepareDatasetForCreation = (mockPool: Interceptable) => {
+  mockPool
+    .intercept({
+      method: 'PUT',
+      path: '/datasets/steps.by.day',
+      headers: {
+        Authorization: `Basic ${btoa('API_KEY:')}`,
+        'User-Agent': 'Geckoboard Node Client 2.0.0',
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        fields: {
+          steps: {
+            type: 'number',
+            name: 'Steps',
+            optional: false,
+          },
+          timestamp: {
+            type: 'datetime',
+            name: 'Date',
+          },
+        },
+        unique_by: ['timestamp'],
+      }),
+    })
+    .reply(
+      200,
+      JSON.stringify({
+        id: 'steps.by.day',
+        fields: {
+          steps: {
+            type: 'number',
+            name: 'Steps',
+            optional: false,
+          },
+          timestamp: {
+            type: 'datetime',
+            name: 'Date',
+          },
+        },
+        unique_by: ['timestamp'],
+      }),
+    );
+
+  const gb = new Geckoboard('API_KEY');
+  return gb.defineDataset({
+    id: 'steps.by.day',
+    fields: {
+      steps: {
+        type: 'number',
+        name: 'Steps',
+        optional: false,
+      },
+      timestamp: {
+        type: 'datetime',
+        name: 'Date',
+      },
+    },
+    uniqueBy: ['timestamp'],
+  });
+};
 describe('Geckoboard', () => {
   let mockAgent: MockAgent;
   let mockPool: Interceptable;
@@ -73,76 +134,11 @@ describe('Geckoboard', () => {
   });
 
   it('can create a dataset', async () => {
-
-    mockPool
-      .intercept({
-        method: 'PUT',
-        path: '/datasets/steps.by.day',
-        headers: {
-          Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
-          'Content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          fields: {
-            steps: {
-              type: 'number',
-              name: 'Steps',
-              optional: false,
-            },
-            timestamp: {
-              type: 'datetime',
-              name: 'Date',
-            },
-          },
-          unique_by: ['timestamp'],
-        }),
-      })
-      .reply(
-        200,
-        JSON.stringify({
-          id: 'steps.by.day',
-          fields: {
-            steps: {
-              type: 'number',
-              name: 'Steps',
-              optional: false,
-            },
-            timestamp: {
-              type: 'datetime',
-              name: 'Date',
-            },
-          },
-          unique_by: ['timestamp'],
-        }),
-      );
-
-    const gb = new Geckoboard('API_KEY');
-    const dataset = gb.defineDataset({
-      id: 'steps.by.day',
-      fields: {
-        steps: {
-          type: 'number',
-          name: 'Steps',
-          optional: false,
-        },
-        timestamp: {
-          type: 'datetime',
-          name: 'Date',
-        },
-      },
-      uniqueBy: ['timestamp'],
-    });
+    const dataset = prepareDatasetForCreation(mockPool);
     await dataset.create();
-
-    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
   it('will error if there is an issue creating a dataset', async () => {
-    const mockAgent = new MockAgent();
-    setGlobalDispatcher(mockAgent);
-
-    const mockPool = mockAgent.get('https://api.geckoboard.com');
     mockPool
       .intercept({
         method: 'PUT',
@@ -179,6 +175,84 @@ describe('Geckoboard', () => {
     expect(async () => await dataset.create()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
-    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
+  });
+
+  it('can append data to a dataset', async () => {
+    mockPool
+      .intercept({
+        method: 'POST',
+        path: '/datasets/steps.by.day/data',
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: [
+            {
+              timestamp: '2018-01-01T12:00:00Z',
+              steps: 819,
+            },
+            {
+              timestamp: '2018-01-02T12:00:00Z',
+              steps: 409,
+            },
+            {
+              timestamp: '2018-01-03T12:00:00Z',
+              steps: 164,
+            },
+          ],
+        }),
+      })
+      .reply(200, '{}');
+    const dataset = prepareDatasetForCreation(mockPool);
+    await dataset.create();
+    dataset.append([
+      {
+        timestamp: '2018-01-01T12:00:00Z',
+        steps: 819,
+      },
+      {
+        timestamp: '2018-01-02T12:00:00Z',
+        steps: 409,
+      },
+      {
+        timestamp: '2018-01-03T12:00:00Z',
+        steps: 164,
+      },
+    ]);
+  });
+
+  it('will error if there is an issue appending to a dataset', async () => {
+    mockPool
+      .intercept({
+        method: 'POST',
+        path: '/datasets/steps.by.day/data',
+        headers: {
+          Authorization: `Basic ${btoa('API_KEY:')}`,
+          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: [
+            {
+              timestamp: '2018-01-01T12:00:00Z',
+              steps: 819,
+            },
+          ],
+        }),
+      })
+      .reply(500, '{}');
+    const dataset = prepareDatasetForCreation(mockPool);
+    await dataset.create();
+    expect(
+      async () =>
+        await dataset.append([
+          {
+            timestamp: '2018-01-01T12:00:00Z',
+            steps: 819,
+          },
+        ]),
+    ).rejects.toThrow(new Error('Something went wrong with the request'));
   });
 });

@@ -296,9 +296,12 @@ class Dataset<T extends Fields> {
     });
   }
 
-  append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
-    console.log({ items, deleteBy });
-    return Promise.resolve();
+  async append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
+    const { id } = this;
+    await this.gb.request('POST', `/datasets/${id}/data`, {
+      data: items,
+      deleteBy,
+    });
   }
 
   replace(items: DatasetDataItem<T>[]): Promise<void> {
