@@ -54,7 +54,7 @@ console.log(schema)
 #### Update a dataset
 ```
 
-await dataset.post([
+await dataset.append([
   { count: 1, day: '2023-10-10' },
   { count: 2, day: '2023-10-11' },
   { count: 3, day: '2023-10-12' },
