@@ -54,7 +54,7 @@ describe('Geckoboard', () => {
       );
 
     const gb = new Geckoboard('BAD_API_KEY');
-    expect(async () => await gb.ping()).rejects.toThrow(
+    await expect(gb.ping()).rejects.toThrow(
       new Error('Your API key is invalid'),
     );
   });
@@ -67,7 +67,7 @@ describe('Geckoboard', () => {
       .reply(500, {});
 
     const gb = new Geckoboard('BAD_API_KEY');
-    expect(async () => await gb.ping()).rejects.toThrow(
+    await expect(gb.ping()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
   });
@@ -169,7 +169,7 @@ describe('Geckoboard', () => {
       uniqueBy: ['timestamp'],
     });
 
-    expect(async () => await dataset.create()).rejects.toThrow(
+    await expect(dataset.create()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
   });
@@ -202,8 +202,8 @@ describe('Geckoboard', () => {
         }),
       })
       .reply(200, '{}');
-    const dataset = prepareDatasetForCreation();
-    dataset.append([
+    const dataset = prepareDataset();
+    await dataset.append([
       {
         timestamp: '2018-01-01T12:00:00Z',
         steps: 819,
@@ -239,15 +239,14 @@ describe('Geckoboard', () => {
         }),
       })
       .reply(500, '{}');
-    const dataset = prepareDatasetForCreation();
-    expect(
-      async () =>
-        await dataset.append([
-          {
-            timestamp: '2018-01-01T12:00:00Z',
-            steps: 819,
-          },
-        ]),
+    const dataset = prepareDataset();
+    await expect(
+      dataset.append([
+        {
+          timestamp: '2018-01-01T12:00:00Z',
+          steps: 819,
+        },
+      ]),
     ).rejects.toThrow(new Error('Something went wrong with the request'));
   });
 
@@ -279,8 +278,8 @@ describe('Geckoboard', () => {
         }),
       })
       .reply(200, '{}');
-    const dataset = prepareDatasetForCreation();
-    dataset.replace([
+    const dataset = prepareDataset();
+    await dataset.replace([
       {
         timestamp: '2018-01-01T12:00:00Z',
         steps: 819,
@@ -316,15 +315,14 @@ describe('Geckoboard', () => {
         }),
       })
       .reply(500, '{}');
-    const dataset = prepareDatasetForCreation();
-    expect(
-      async () =>
-        await dataset.replace([
-          {
-            timestamp: '2018-01-01T12:00:00Z',
-            steps: 819,
-          },
-        ]),
+    const dataset = prepareDataset();
+    await expect(
+      dataset.replace([
+        {
+          timestamp: '2018-01-01T12:00:00Z',
+          steps: 819,
+        },
+      ]),
     ).rejects.toThrow(new Error('Something went wrong with the request'));
   });
 
@@ -339,7 +337,7 @@ describe('Geckoboard', () => {
         },
       })
       .reply(200, '{}');
-    const dataset = prepareDatasetForCreation();
+    const dataset = prepareDataset();
     await dataset.delete();
   });
 
@@ -354,14 +352,14 @@ describe('Geckoboard', () => {
         },
       })
       .reply(500, '{}');
-    const dataset = prepareDatasetForCreation();
-    expect(async () => await dataset.delete()).rejects.toThrow(
+    const dataset = prepareDataset();
+    await expect(dataset.delete()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
   });
 });
 
-const prepareDatasetForCreation = () => {
+const prepareDataset = () => {
   const gb = new Geckoboard('API_KEY');
   return gb.defineDataset({
     id: 'steps.by.day',
