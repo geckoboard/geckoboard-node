@@ -135,23 +135,8 @@ describe('Geckoboard', () => {
       },
       uniqueBy: ['timestamp'],
     });
-    const schema = await dataset.create();
+    await dataset.create();
 
-    expect(schema).toEqual({
-      id: 'steps.by.day',
-      fields: {
-        steps: {
-          type: 'number',
-          name: 'Steps',
-          optional: false,
-        },
-        timestamp: {
-          type: 'datetime',
-          name: 'Date',
-        },
-      },
-      uniqueBy: ['timestamp'],
-    });
     expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 

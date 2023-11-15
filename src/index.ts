@@ -246,18 +246,10 @@ type KeysMatching<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
-type uniqueBy<T> = Array<
-  KeysMatching<T, StringField | DateField | DateTimeField>
->;
-
 type Schema<T extends Fields> = {
   id: string;
   fields: T;
-  uniqueBy: uniqueBy<T>;
-};
-
-type SchemaResponse<T extends Fields> = Pick<Schema<T>, 'id' | 'fields'> & {
-  unique_by: uniqueBy<T>;
+  uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
 };
 
 type FieldType<T> = T extends DateField | DateTimeField | StringField
@@ -296,18 +288,12 @@ class Dataset<T extends Fields> {
     this.gb = gb;
   }
 
-  async create(): Promise<Schema<T>> {
+  async create(): Promise<void> {
     const { id, fields, uniqueBy } = this;
-    const res = await this.gb.request('PUT', `/datasets/${id}`, {
+    await this.gb.request('PUT', `/datasets/${id}`, {
       fields,
       unique_by: uniqueBy,
     });
-    const json = (await res.json()) as SchemaResponse<T>;
-    return {
-      id: json.id,
-      fields: json.fields,
-      uniqueBy: json.unique_by,
-    } as Schema<T>;
   }
 
   append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
