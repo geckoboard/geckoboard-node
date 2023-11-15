@@ -1,17 +1,30 @@
 import Geckoboard from './index';
-import { MockAgent, setGlobalDispatcher } from 'undici';
+import { MockAgent, setGlobalDispatcher, Interceptable } from 'undici';
 
 describe('Geckoboard', () => {
+  let mockAgent: MockAgent;
+  let mockPool: Interceptable;
+
+  beforeEach(() => {
+    mockAgent = new MockAgent();
+    // If request are made that do not have an interceptor, they
+    // will actually be made over the net unless we call this method.
+    mockAgent.disableNetConnect();
+    setGlobalDispatcher(mockAgent);
+
+    mockPool = mockAgent.get('https://api.geckoboard.com');
+  });
+
+  afterEach(() => {
+    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
+  });
+
   it('has the version set correctly', () => {
     const gb = new Geckoboard('API_KEY');
     expect(gb.version).toBe('2.0.0');
   });
 
   it('can ping the api server', async () => {
-    const mockAgent = new MockAgent();
-    setGlobalDispatcher(mockAgent);
-
-    const mockPool = mockAgent.get('https://api.geckoboard.com');
     mockPool
       .intercept({
         path: '/',
@@ -24,15 +37,9 @@ describe('Geckoboard', () => {
 
     const gb = new Geckoboard('API_KEY');
     await gb.ping();
-
-    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
   it('will error if ping is not authorized', async () => {
-    const mockAgent = new MockAgent();
-    setGlobalDispatcher(mockAgent);
-
-    const mockPool = mockAgent.get('https://api.geckoboard.com');
     mockPool
       .intercept({
         path: '/',
@@ -50,14 +57,9 @@ describe('Geckoboard', () => {
     expect(async () => await gb.ping()).rejects.toThrow(
       new Error('Your API key is invalid'),
     );
-    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
   it('will error with default message when error is upexpected', async () => {
-    const mockAgent = new MockAgent();
-    setGlobalDispatcher(mockAgent);
-
-    const mockPool = mockAgent.get('https://api.geckoboard.com');
     mockPool
       .intercept({
         path: '/',
@@ -68,14 +70,10 @@ describe('Geckoboard', () => {
     expect(async () => await gb.ping()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
-    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
   it('can create a dataset', async () => {
-    const mockAgent = new MockAgent();
-    setGlobalDispatcher(mockAgent);
 
-    const mockPool = mockAgent.get('https://api.geckoboard.com');
     mockPool
       .intercept({
         method: 'PUT',
