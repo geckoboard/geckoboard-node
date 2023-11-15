@@ -50,6 +50,7 @@ describe('Geckoboard', () => {
     expect(async () => await gb.ping()).rejects.toThrow(
       new Error('Your API key is invalid'),
     );
+    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
   it('will error with default message when error is upexpected', async () => {
@@ -67,6 +68,7 @@ describe('Geckoboard', () => {
     expect(async () => await gb.ping()).rejects.toThrow(
       new Error('Something went wrong with the request'),
     );
+    expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
   it('can create a dataset', async () => {
