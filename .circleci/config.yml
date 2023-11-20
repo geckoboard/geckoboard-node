@@ -26,9 +26,26 @@ jobs:
       - checkout
       - run: npm clean-install
       - run: npm run lint 
+  publish:
+    executor: node
+    steps:
+      - checkout
+      - run: npm clean-install
+      - run: npm run build
+      - run:
+          name: Publish to NPM
+          command: |
+            npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+            npm publish --dry-run
 
 workflows:
   lint-and-test:
     jobs:
       - lint
       - test
+  tagged-build:
+    jobs:
+      - publish:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*/
