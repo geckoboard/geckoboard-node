@@ -33,19 +33,23 @@ const API_KEY = 'YOUR_API_KEY';
 const gb = new Geckoboard(API_KEY);
 
 const dataset = gb.defineDataset({
-    id: 'my.dataset',
-    fields: {
-        count: {
-            type: 'number',
-            name: 'Count'
-        },
-        day: {
-            type: 'date',
-            name: 'Day'
-        },
+  id: 'my.dataset',
+  fields: {
+    count: {
+      type: 'number',
+      name: 'Count',
     },
-    uniqueBy: ['day']
-})
+    day: {
+      type: 'date',
+      name: 'Day',
+    },
+    timestamp: {
+      type: 'datetime',
+      name: 'Timestamp',
+    },
+  },
+  uniqueBy: ['day'],
+});
 
 const schema = await dataset.create();
 console.log(schema)
@@ -78,6 +82,66 @@ await dataset.replace([{ count: 2, day: '2023-10-10' }])
 
 // remove the dataset completely
 await dataset.delete()
+
+```
+
+#### Using Date objects to send date/datetime field values
+```
+await dataset.append([
+  { count: 1, day: new Date('2023-10-10T12:00:00Z') },
+  { count: 2, day: new Date('2023-10-11T12:00:00Z') },
+  { count: 3, day: new Date('2023-10-12T12:00:00Z') },
+  { count: 4, day: new Date('2023-10-13T12:00:00Z') },
+]);
+```
+
+This will store the respective dataset field values as whatever the UTC value of the given Date object is.
+
+```
+// be careful with timezones, the date that is sent to the server
+// will be the UTC value of the given date.
+await dataset.append([
+  {
+    timestamp: new Date('2018-01-01T12:00:00'), 
+    // If local timezone is GMT, this will map to '2018-01-01T12:00:00.000Z'
+    // If local time zone is `Europe/Paris` (UTC + 1), this will map to
+    // 2018-01-01T11:00:00.000Z
+    steps: 819,
+  },
+]);
+
+// local time will be changed to UTC
+await dataset.append([
+  {
+    timestamp: new Date('2018-01-01T12:00'), // local time maps to UTC
+    // so for example, if you're in `Europe/Paris` (UTC + 1) this will be
+    // '2018-01-01T11:00:00.000Z' -  it changes 12 noon back to 11am.
+    steps: 819,
+  },
+]);
+
+// dates with non-UTC timezone
+await dataset.append([
+  {
+    timestamp: new Date('2013-09-15T05:53:00+08:00'),
+    // UTC + 8 time maps to UTC. So, this will map to
+    // '2013-09-14T21:53:00.000Z' -  it goes back 8 hours, and changes
+    // the day, if necessary.
+    steps: 819,
+  },
+]);
+
+// date strings are always interpreted as UTC
+// this is a quirk in the Javascript spec
+await dataset.append([
+  {
+    timestamp: ...,
+    day: new Date('2013-09-15'),
+    // will always map to '2013-09-15'
+    // regardless of your timezone.
+    steps: 819,
+  },
+]);
 
 ```
 

@@ -252,11 +252,13 @@ type Schema<T extends Fields> = {
   uniqueBy: Array<KeysMatching<T, StringField | DateField | DateTimeField>>;
 };
 
-type FieldType<T> = T extends DateField | DateTimeField | StringField
-  ? string
-  : T extends DurationField | MoneyField | NumberField | PercentageField
-    ? number
-    : never;
+type FieldType<T> = T extends DateField | DateTimeField
+  ? string | Date
+  : T extends StringField
+    ? string
+    : T extends DurationField | MoneyField | NumberField | PercentageField
+      ? number
+      : never;
 
 type IsOptional<
   K extends keyof F,
@@ -296,18 +298,57 @@ class Dataset<T extends Fields> {
     });
   }
 
+  replaceDateObjects(items: DatasetDataItem<T>[]): DatasetDataItem<T>[] {
+    const dateFields: Array<keyof T> = [];
+    const dateTimeFields: Array<keyof T> = [];
+
+    const keys = Object.keys(this.fields);
+    keys.forEach((fieldName) => {
+      const field = this.fields[fieldName];
+      if (field.type === 'date') {
+        dateFields.push(fieldName);
+      }
+      if (field.type === 'datetime') {
+        dateTimeFields.push(fieldName);
+      }
+    });
+    return items.map((item) => {
+      dateFields.forEach((fieldName) => {
+        const fieldValue = item[fieldName as keyof DatasetDataItem<T>];
+        if (fieldValue instanceof Date) {
+          item = {
+            ...item,
+            [fieldName]: fieldValue.toISOString().split('T')[0],
+          };
+        }
+      });
+      dateTimeFields.forEach((fieldName) => {
+        const fieldValue = item[fieldName as keyof DatasetDataItem<T>];
+        if (fieldValue instanceof Date) {
+          item = {
+            ...item,
+            [fieldName]: fieldValue.toISOString(),
+          };
+        }
+      });
+
+      return item;
+    });
+  }
   async append(items: DatasetDataItem<T>[], deleteBy?: keyof T): Promise<void> {
     const { id } = this;
+    const data = this.replaceDateObjects(items);
     await this.gb.request('POST', `/datasets/${id}/data`, {
-      data: items,
+      data,
       deleteBy,
     });
   }
 
   async replace(items: DatasetDataItem<T>[]): Promise<void> {
     const { id } = this;
+    const data = this.replaceDateObjects(items);
     await this.gb.request('PUT', `/datasets/${id}/data`, {
-      data: items,
+      data,
     });
   }
 
@@ -319,10 +360,13 @@ class Dataset<T extends Fields> {
 
 class Geckoboard {
   apiKey: string;
+  apiHost: string;
   version: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    this.apiHost =
+      process.env.GECKOBOARD_API_HOST || 'https://api.geckoboard.com';
     this.version = version;
   }
 
@@ -339,7 +383,7 @@ class Geckoboard {
     if (method === 'POST' || method === 'PUT') {
       headers.set('Content-Type', 'application/json');
     }
-    const res = await fetch(new URL(path, 'https://api.geckoboard.com'), {
+    const res = await fetch(new URL(path, this.apiHost), {
       body: JSON.stringify(body),
       method: method,
       headers,
