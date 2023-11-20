@@ -36,7 +36,7 @@ jobs:
           name: Publish to NPM
           command: |
             npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-            npm publish --dry-run
+            npm publish 
 
 workflows:
   lint-and-test:
