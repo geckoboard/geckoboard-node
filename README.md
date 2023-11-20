@@ -81,6 +81,18 @@ await dataset.delete()
 
 ```
 
+#### Using Date objects to send date/datetime field values
+```
+await dataset.append([
+  { count: 1, day: new Date('2023-10-10T12:00:00Z') },
+  { count: 2, day: new Date('2023-10-11T12:00:00Z') },
+  { count: 3, day: new Date('2023-10-12T12:00:00Z') },
+  { count: 4, day: new Date('2023-10-13T12:00:00Z') },
+]);
+```
+
+This will store the respective dataset field values as whatever the UTC value of the given Date object is.
+
 ### Ping to test connection
 
 ```
