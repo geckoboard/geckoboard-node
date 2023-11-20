@@ -360,10 +360,13 @@ class Dataset<T extends Fields> {
 
 class Geckoboard {
   apiKey: string;
+  apiHost: string;
   version: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
+    this.apiHost =
+      process.env.GECKOBOARD_API_HOST || 'https://api.geckoboard.com';
     this.version = version;
   }
 
@@ -380,7 +383,7 @@ class Geckoboard {
     if (method === 'POST' || method === 'PUT') {
       headers.set('Content-Type', 'application/json');
     }
-    const res = await fetch(new URL(path, 'https://api.geckoboard.com'), {
+    const res = await fetch(new URL(path, this.apiHost), {
       body: JSON.stringify(body),
       method: method,
       headers,

@@ -2,10 +2,14 @@ import Geckoboard from './index';
 import { MockAgent, setGlobalDispatcher, Interceptable } from 'undici';
 
 describe('Geckoboard', () => {
+  const ORIGINAL_ENV = process.env;
+
   let mockAgent: MockAgent;
   let mockPool: Interceptable;
 
   beforeEach(() => {
+    process.env = { ...ORIGINAL_ENV };
+
     mockAgent = new MockAgent();
     // If request are made that do not have an interceptor, they
     // will actually be made over the net unless we call this method.
@@ -19,6 +23,10 @@ describe('Geckoboard', () => {
     expect(() => mockAgent.assertNoPendingInterceptors()).not.toThrow();
   });
 
+  afterAll(() => {
+    process.env = ORIGINAL_ENV;
+  });
+
   it('has the version set correctly', () => {
     const gb = new Geckoboard('API_KEY');
     expect(gb.version).toBe('2.0.0');
@@ -26,6 +34,28 @@ describe('Geckoboard', () => {
 
   it('can ping the api server', async () => {
     const serverSpy = jest.fn().mockReturnValue({});
+    mockPool.intercept({ path: '/' }).reply(200, serverSpy);
+
+    const gb = new Geckoboard('API_KEY');
+    await gb.ping();
+    expect(serverSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: '/',
+        headers: expect.objectContaining({
+          authorization: `Basic ${btoa('API_KEY:')}`,
+          'user-agent': 'Geckoboard Node Client 2.0.0',
+        }),
+      }),
+    );
+  });
+
+  it('can use a custom API host', async () => {
+    const serverSpy = jest.fn().mockReturnValue({});
+
+    const GECKOBOARD_API_HOST = 'https://api.deadpan.com';
+    process.env.GECKOBOARD_API_HOST = GECKOBOARD_API_HOST;
+    mockPool = mockAgent.get(GECKOBOARD_API_HOST);
+
     mockPool.intercept({ path: '/' }).reply(200, serverSpy);
 
     const gb = new Geckoboard('API_KEY');
