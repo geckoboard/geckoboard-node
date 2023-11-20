@@ -275,14 +275,6 @@ type DatasetDataItem<F extends Fields> = {
   [K in keyof F as IsOptional<K, F>]?: FieldType<F[K]>;
 };
 
-const toDateString = (date: Date): string => {
-  const YYYY = date.getFullYear();
-  const month = (date.getMonth() + 1).toString();
-  const MM = month.length < 2 ? '0' + month : month;
-  const day = date.getDay().toString();
-  const DD = day.length < 2 ? '0' + day : day;
-  return `${YYYY}-${MM}-${DD}`;
-};
 class Dataset<T extends Fields> {
   id: string;
   fields: T;
@@ -326,7 +318,7 @@ class Dataset<T extends Fields> {
         if (fieldValue instanceof Date) {
           item = {
             ...item,
-            [fieldName]: toDateString(fieldValue as Date),
+            [fieldName]: (fieldValue as Date).toISOString().split('T')[0],
           };
         }
       });
