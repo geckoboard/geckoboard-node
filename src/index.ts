@@ -318,7 +318,7 @@ class Dataset<T extends Fields> {
         if (fieldValue instanceof Date) {
           item = {
             ...item,
-            [fieldName]: (fieldValue as Date).toISOString().split('T')[0],
+            [fieldName]: fieldValue.toISOString().split('T')[0],
           };
         }
       });
@@ -327,7 +327,7 @@ class Dataset<T extends Fields> {
         if (fieldValue instanceof Date) {
           item = {
             ...item,
-            [fieldName]: (fieldValue as Date).toISOString(),
+            [fieldName]: fieldValue.toISOString(),
           };
         }
       });
