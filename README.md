@@ -51,8 +51,7 @@ const dataset = gb.defineDataset({
   uniqueBy: ['day'],
 });
 
-const schema = await dataset.create();
-console.log(schema)
+await dataset.create();
 ```
 
 #### Update a dataset
