@@ -51,8 +51,7 @@ const dataset = gb.defineDataset({
   uniqueBy: ['day'],
 });
 
-const schema = await dataset.create();
-console.log(schema)
+await dataset.create();
 ```
 
 #### Update a dataset
@@ -170,3 +169,11 @@ npm run test
 ## Development
 
 You can change the host against which requests will be made by setting the `GECKOBOARD_API_HOST` environment variable to the full URL of the instance you wish to use.
+
+## Notes for maintainers
+
+To publish a new version of the module to NPM, you need to run the following command
+```
+npm version X.X.X
+```
+Where X.X.X is the version you want to release. This will create a tagged commit, once this commit is pushed to github, it will trigger publishing to NPM.
