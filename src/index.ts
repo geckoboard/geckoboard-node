@@ -358,7 +358,7 @@ class Dataset<T extends Fields> {
   }
 }
 
-class Geckoboard {
+export class Geckoboard {
   apiKey: string;
   apiHost: string;
   version: string;
@@ -405,5 +405,3 @@ class Geckoboard {
     await this.request('GET', '/');
   }
 }
-
-export default Geckoboard;

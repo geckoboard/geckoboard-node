@@ -22,7 +22,7 @@ The latest documentation and user guide can be found on the Geckoboard developer
 #### Find or create a new dataset
 
 ```
-import Geckoboard from 'geckoboard';
+import { Geckoboard } from 'geckoboard';
 
 const API_KEY = 'YOUR_API_KEY';
 
@@ -143,7 +143,7 @@ await dataset.append([
 ### Ping to test connection
 
 ```
-import Geckoboard from 'geckoboard';
+import { Geckoboard } from 'geckoboard';
 
 const API_KEY = 'YOUR_API_KEY';
 
