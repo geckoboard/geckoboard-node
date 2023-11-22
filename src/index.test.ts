@@ -29,7 +29,7 @@ describe('Geckoboard', () => {
 
   it('has the version set correctly', () => {
     const gb = new Geckoboard('API_KEY');
-    expect(gb.version).toBe('2.0.0');
+    expect(gb.version).toBe('2.0.1');
   });
 
   it('can ping the api server', async () => {
@@ -43,7 +43,7 @@ describe('Geckoboard', () => {
         path: '/',
         headers: expect.objectContaining({
           authorization: `Basic ${btoa('API_KEY:')}`,
-          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'user-agent': 'Geckoboard Node Client 2.0.1',
         }),
       }),
     );
@@ -65,7 +65,7 @@ describe('Geckoboard', () => {
         path: '/',
         headers: expect.objectContaining({
           authorization: `Basic ${btoa('API_KEY:')}`,
-          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'user-agent': 'Geckoboard Node Client 2.0.1',
         }),
       }),
     );
@@ -141,7 +141,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day',
         headers: expect.objectContaining({
           authorization: `Basic ${btoa('API_KEY:')}`,
-          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'user-agent': 'Geckoboard Node Client 2.0.1',
           'content-type': 'application/json',
         }),
         body: JSON.stringify({
@@ -169,7 +169,7 @@ describe('Geckoboard', () => {
         path: '/datasets/problems.by.day',
         headers: {
           Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'User-Agent': 'Geckoboard Node Client 2.0.1',
           'Content-type': 'application/json',
         },
         body: JSON.stringify({
@@ -230,7 +230,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day/data',
         headers: expect.objectContaining({
           authorization: `Basic ${btoa('API_KEY:')}`,
-          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'user-agent': 'Geckoboard Node Client 2.0.1',
           'content-type': 'application/json',
         }),
         body: JSON.stringify({
@@ -313,7 +313,7 @@ describe('Geckoboard', () => {
           path: '/datasets/steps.by.day/data',
           headers: expect.objectContaining({
             authorization: `Basic ${btoa('API_KEY:')}`,
-            'user-agent': 'Geckoboard Node Client 2.0.0',
+            'user-agent': 'Geckoboard Node Client 2.0.1',
             'content-type': 'application/json',
           }),
           body: JSON.stringify({
@@ -390,7 +390,7 @@ describe('Geckoboard', () => {
           path: '/datasets/steps.by.day/data',
           headers: expect.objectContaining({
             authorization: `Basic ${btoa('API_KEY:')}`,
-            'user-agent': 'Geckoboard Node Client 2.0.0',
+            'user-agent': 'Geckoboard Node Client 2.0.1',
             'content-type': 'application/json',
           }),
           body: JSON.stringify({
@@ -414,7 +414,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day/data',
         headers: {
           Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'User-Agent': 'Geckoboard Node Client 2.0.1',
           'Content-type': 'application/json',
         },
         body: JSON.stringify({
@@ -467,7 +467,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day/data',
         headers: expect.objectContaining({
           authorization: `Basic ${btoa('API_KEY:')}`,
-          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'user-agent': 'Geckoboard Node Client 2.0.1',
           'content-type': 'application/json',
         }),
         body: JSON.stringify({
@@ -550,7 +550,7 @@ describe('Geckoboard', () => {
           path: '/datasets/steps.by.day/data',
           headers: expect.objectContaining({
             authorization: `Basic ${btoa('API_KEY:')}`,
-            'user-agent': 'Geckoboard Node Client 2.0.0',
+            'user-agent': 'Geckoboard Node Client 2.0.1',
             'content-type': 'application/json',
           }),
           body: JSON.stringify({
@@ -627,7 +627,7 @@ describe('Geckoboard', () => {
           path: '/datasets/steps.by.day/data',
           headers: expect.objectContaining({
             authorization: `Basic ${btoa('API_KEY:')}`,
-            'user-agent': 'Geckoboard Node Client 2.0.0',
+            'user-agent': 'Geckoboard Node Client 2.0.1',
             'content-type': 'application/json',
           }),
           body: JSON.stringify({
@@ -651,7 +651,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day/data',
         headers: {
           Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'User-Agent': 'Geckoboard Node Client 2.0.1',
           'Content-type': 'application/json',
         },
         body: JSON.stringify({
@@ -691,7 +691,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day',
         headers: expect.objectContaining({
           authorization: `Basic ${btoa('API_KEY:')}`,
-          'user-agent': 'Geckoboard Node Client 2.0.0',
+          'user-agent': 'Geckoboard Node Client 2.0.1',
         }),
       }),
     );
@@ -704,7 +704,7 @@ describe('Geckoboard', () => {
         path: '/datasets/steps.by.day',
         headers: {
           Authorization: `Basic ${btoa('API_KEY:')}`,
-          'User-Agent': 'Geckoboard Node Client 2.0.0',
+          'User-Agent': 'Geckoboard Node Client 2.0.1',
         },
       })
       .reply(500, '{}');
