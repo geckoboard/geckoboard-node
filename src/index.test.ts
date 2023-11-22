@@ -1,4 +1,4 @@
-import Geckoboard from './index';
+import { Geckoboard } from './index';
 import { MockAgent, setGlobalDispatcher, Interceptable } from 'undici';
 
 describe('Geckoboard', () => {
