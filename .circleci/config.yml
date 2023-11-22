@@ -5,6 +5,9 @@ parameters:
     type: string
     default: '18.8'
 
+orbs:
+  codecov: codecov/codecov@3.2.4
+
 executors:
   node:
     docker:
