@@ -117,7 +117,7 @@ describe('Geckoboard', () => {
     );
     mockPool
       .intercept({ method: 'PUT', path: '/datasets/steps.by.day' })
-      .reply(200, serverSpy);
+      .reply(201, serverSpy);
 
     const gb = new Geckoboard('API_KEY');
     const dataset = gb.defineDataset({
