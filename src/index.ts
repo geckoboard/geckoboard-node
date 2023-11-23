@@ -388,7 +388,7 @@ export class Geckoboard {
       method: method,
       headers,
     });
-    if (res.status !== 200) {
+    if (!res.ok) {
       const json = (await res.json()) as ErrorResponse;
       const message =
         json.error?.message || 'Something went wrong with the request';
