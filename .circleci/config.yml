@@ -5,6 +5,9 @@ parameters:
     type: string
     default: '18.8'
 
+orbs:
+  codecov: codecov/codecov@3.2.4
+
 executors:
   node:
     docker:
@@ -19,7 +22,8 @@ jobs:
     steps:
       - checkout
       - run: npm clean-install
-      - run: npm test
+      - run: npm test -- --coverage
+      - codecov/upload
   lint:
     executor: node
     steps:
