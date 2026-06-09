@@ -3,7 +3,7 @@ version: 2.1
 parameters:
   node_version:
     type: string
-    default: '18.8'
+    default: '18.17'
 
 orbs:
   codecov: codecov/codecov@3.2.4
@@ -29,7 +29,7 @@ jobs:
     steps:
       - checkout
       - run: npm clean-install
-      - run: npm run lint 
+      - run: npm run lint
   publish:
     executor: node
     steps:
@@ -40,7 +40,7 @@ jobs:
           name: Publish to NPM
           command: |
             npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-            npm publish 
+            npm publish
 
 workflows:
   lint-and-test:
