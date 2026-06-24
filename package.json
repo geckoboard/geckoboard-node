@@ -41,6 +41,9 @@
     "undici": "^6.24.0"
   },
   "overrides": {
-    "minimatch": "^8.0.0"
+    "minimatch": "^8.0.0",
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "^4.2.0"
+    }
   }
 }
